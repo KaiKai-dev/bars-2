@@ -21,7 +21,7 @@
             })
         })
         announcements = [...announcement];
-        console.log(announcements);
+        
     })
 
 </script>

@@ -39,7 +39,7 @@
                </button>
            </div>
            <button on:click={menu}>
-               <ul id="navlist" class="mt-8 md:mb-0 md:mt-0 md:flex md:items-center justify-between md:static absolute bg-white left-0 top-12 w-full text-center z-1 py-4 md:py-0  md:opacity-100 transition-all ease-in duration-300 {openMenu ? 'opacity-100' : 'opacity-0'}">
+               <ul id="navlist" class="mt-8 md:mb-0 md:mt-0 md:flex md:items-center justify-between md:static absolute bg-white left-0 top-12 w-full text-center py-4 md:py-0  md:opacity-100 transition-all ease-in duration-300 {openMenu ? '' : 'hidden'}">
                    <li class="mx-4 my-6 md:my-0">
                        <a href="/" class="text-md md:text-xl md:px-3 md:pt-1 md:bg-gray-400 md:text-gray-800 md:rounded-t-md md:hover:text-white hover:text-gray-500 hover:underline md:hover:no-underline duration-300">Homepage</a>
                    </li>
