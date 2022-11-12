@@ -4,6 +4,9 @@
 	import { element } from 'svelte/internal';
 
     let uploadModal = false;
+    let formValidated = false;
+
+    
 
     let docuList = [
         // {document: "document", requirement1: "requirement1", requirement2: "requirement2"}
@@ -32,7 +35,7 @@
             })
             docuList = [...document]
         })
-        console.log(docuList)
+        // console.log(docuList)
     })
 
     async function submitHandler() {
@@ -98,7 +101,7 @@
                     const regex = new RegExp(patternRegex);
 
                     // return regex.test(input.value);
-                    return regex.test(input.value);
+                    return regex.test(input.value) && input.value.length <= 11;
                 },
                 errorMessage: (input, label) => label.textContent + " format you entered is not valid"
             },
@@ -122,10 +125,22 @@
                     let age = Math.abs(today - bDay)
                     let yearAge = Math.ceil(age / (1000 * 60 * 60 * 24 * 365));
                     
-                    return parseInt(input.value, 10) == parseInt((yearAge - 1), 10);
+                    return parseInt((yearAge - 1), 10) <= 125 && parseInt((yearAge - 1), 10) >= 0 && parseInt(input.value, 10) == parseInt((yearAge - 1), 10);
                 },
                 errorMessage: (input, label) => {
+                    let today = new Date();
+                    let bDay = new Date(document.getElementById('birthDate').value);
+
+                    let age = Math.abs(today - bDay)
+                    let yearAge = Math.ceil(age / (1000 * 60 * 60 * 24 * 365)); 
+
+                    if(parseInt((yearAge - 1), 10) != input.value){
                         return "The birthdate and age you entered did not matched"
+                    } else if(parseInt((yearAge - 1), 10) > 125){
+                        return label.textContent + " is beyond the max age (125)"
+                    } else if(parseInt((yearAge - 1), 10) < 0){
+                        return label.textContent + " is below the minimum age (0)"
+                    }
                 }
             },
             {
@@ -174,33 +189,42 @@
 
             if(!formGroupError){
                 errorContainer.textContent = "";
-                errorContainer.classList.add('hidden'); 
+                errorContainer.classList.add('hidden');
             }
-        }
+            
+            return !formGroupError; 
+            // if(formGroupError = false){
+                //     return !formGroupError;
+                // }
+            }
         
         
         
         function validateAllFormGroups(formToValidate) {
             const formGroups = Array.from(formToValidate.querySelectorAll('.formGroup'));
 
-            console.log(formGroups)
-            formGroups.forEach((formGroup) => {
-                validateSingleFormGroup(formGroup);
-            });
+            // console.log(formGroups)
+            return formGroups.every((formGroup) => validateSingleFormGroup(formGroup));
         }
 
-        formElement.setAttribute('novalidate', '');
-        console.log(formElement.elements);
+        // formElement.setAttribute('novalidate', '');
+        // console.log(formElement.elements);
         // Array.from(formElement.elements).forEach(element => {
         //     element.addEventListener('blur', event => {
         //         validateSingleFormGroup(event.srcElement.parentElement)
 
         //     })
         // })
-        formElement.addEventListener('submit', (event) => {
-            event.preventDefault();
-            validateAllFormGroups(formElement);
-        });
+        // formElement.addEventListener('submit', (event) => {
+            // event.preventDefault();
+            const formValid = validateAllFormGroups(formElement);
+            
+            console.log(formValid)
+            if(formValid){
+                formValidated = true;
+                console.log("form is valid")
+            }
+        // });
 
         
 
@@ -209,12 +233,36 @@
     }
 
     function clearForm() {
+        // const formElement = document.querySelector('#form');
+        // let inputs
         
     }
+
+    let ageComputed = 0;
+    let birth ;
+
+    $: {
+        let birthdateInput = new Date(birth);
+        let today = new Date();
+
+        let age = Math.abs(today - birthdateInput)
+        let yearAge = Math.ceil(age / (1000 * 60 * 60 * 24 * 365));
+
+        console.log(parseInt(yearAge - 1))
+        if(parseInt(yearAge - 1) <= -1){
+            ageComputed = 0;
+        } else {
+            ageComputed = parseInt(yearAge - 1);
+        }
+    }
+    
+
+    
+
 </script>
 
 <main class=" min-h-screen max-w-screen left-0 mx-2 md:mx-0 mt-3 md:mt-5" >
-    <form class="bg-white p-3 border-2 border-white grid grid-cols-1 md:grid-cols-5 gap-3 rounded-md" id="form">
+    <form class="bg-white p-3 border-2 border-white grid grid-cols-1 md:grid-cols-5 gap-3 rounded-md" id="form" on:submit|preventDefault={formValidation} novalidate>
 
         <!-- Basic Information-->
         <div class="w-full md:col-span-3">
@@ -262,14 +310,16 @@
                 <!-- BirthDate -->
                 <div class="col-span-3 formGroup">
                     <label for="birthDate" class="hidden">Birthdate</label>
-                    <input type="text" id="birthDate" placeholder="Birthdate" class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 date:text-none" required onfocus="(this.type='date')" customdate>
+                    <input type="text" id="birthDate" placeholder="Birthdate" class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 date:text-none" required onfocus="(this.type='date')" customdate bind:value={birth}>
+                    <!-- bind:value={birth} -->
                     <div class=" error text-red-600 text-sm pl-3"></div>
                 </div>
 
                 <!-- Age -->
                 <div class="col-span-1 formGroup">
                     <label for="age" class="hidden">Age</label>
-                    <input type="number" id="age" placeholder="Age" class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-0" required custommaxvalue="125" customminvalue="0">
+                    <input type="number" id="age" placeholder="Age" class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-0" required custommaxvalue="125" customminvalue="0" bind:value={ageComputed}>
+                    <!-- bind:value={ageComputed} -->
                     <div class=" error col-span-3 text-red-600 text-sm pl-3"></div>
                 </div>
                 <p class="col-span-2 p-2 pl-1">years old</p>
@@ -312,34 +362,56 @@
             <div>
                 {#each documents as document}
                     <span class="text-sm p-2 mr-2 bg-slate-500 rounded-3xl text-white">
-                        <span>{document.document}</span>
+                        {document.document}
                         <!-- <button class="ml-2" on:click={() => document = ""}>x</button> -->
                     </span>
                 {/each}
             </div>
         </div>
         
-        <div class="{uploadModal ? "" : "hidden"}">
-            <div>
-                <button on:click={() => uploadModal = false}>
-                    <div class="w-5 h-1 bg-gray-500 rotate-45"></div>
-                    <div class="w-5 h-1 bg-gray-500 ] translate-y-[-4px] rotate-[135deg]"></div>
+        
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div class="{uploadModal ? "" : "hidden"} fixed bg-black bg-opacity-50 min-h-screen w-full top-[-0.01%] left-[-0.5px] flex items-center justify-center h-max" on:click|self={() => uploadModal = false}>
+            <div class="bg-white h-max w-max p-3 rounded-lg">
+                <button on:click={() => uploadModal = false} class="bg-red-400 py-2 px-3 rounded-3xl mb-3">
+                    <!-- <div class="w-5 h-1 bg-white rotate-45"></div>
+                    <div class="w-5 h-1 bg-white ] translate-y-[-4px] rotate-[135deg]"></div> -->
+                    <p class="text-white text-sm">X</p>
                 </button>
                 <p>Please upload the requirements for the following:</p>
                 {#each documents as doc}
                     <p>{doc.document}</p>
                     {#each doc.requirements as req}
                         <p>{req.requirement}</p>
-                        <input type="file" id="{doc.document}File">  
+                        <div class="border-2 p-2 bg-slate-400">
+                            <p>Drag here to upload or</p>
+                            <input 
+                                type="file" id="{doc.document}File" 
+                                class="">  
+                        </div>
                     {/each}
                 {/each}
+                <br>
+                <button class="bg-blue-400 text-white p-2 rounded-2xl shadow-md mt-3">Upload All</button>
             </div>
         </div>
 
         <!-- Submit and Clear Form Buttons -->
         <div>
-            <button on:click={formValidation} class="p-2 bg-green-500 text-white rounded-2xl shadow-md">Validate</button>
-            <button class="p-2 bg-red-400 text-white rounded-2xl shadow-lg">Clear Form</button>
+            {#if formValidated == true}
+                <button 
+                on:click={() => {
+                    if(documents == "" || documents.length == 0){
+                        alert("Please select at least one document")
+                    } else {
+                        uploadModal = true} 
+                    }
+                }
+                class="p-2 bg-green-500 text-white rounded-2xl shadow-md">Proceed</button>
+            {:else if formValidated == false}
+                <button type="submit" class="p-2 bg-green-500 text-white rounded-2xl shadow-md">Validate</button>
+                {/if}
+            <button class="p-2 bg-red-400 text-white rounded-2xl shadow-lg" on:click={clearForm()}>Clear Form</button>
         </div>
     </form>
 </main>
