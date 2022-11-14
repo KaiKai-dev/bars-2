@@ -1,10 +1,10 @@
 <script>
-    import {db} from '$lib/stores/firebase.js';
+    import { db, storage} from '$lib/stores/firebase.js';
     import { collection, doc, onSnapshot, setDoc, Timestamp, query } from "firebase/firestore";
-	import { element } from 'svelte/internal';
+	import { getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 
     let uploadModal = false;
-    let formValidated = true;
+    let formValidated = false;
 
     
 
@@ -13,6 +13,7 @@
     ];
     let documents = [];
     const status = "Successful";
+    let requestId = "";
 
     const docRef = query(collection(db, "documents"));
 
@@ -257,6 +258,82 @@
         
     }
 
+    async function uploadFiles() {
+        const formElement = document.getElementById('form');
+        const docGroups = Array.from(formElement.querySelectorAll('.docGroup'));
+        
+
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM0987654321";
+
+        // ticketId Generator
+        for(let index = 0; index < 9; index++){
+            let modulus = index % 3;
+            if(modulus == 0 && index != 0){
+                requestId += "-"
+            }
+            if(requestId.length <=11){
+                requestId += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+        }
+
+        docGroups.forEach((docGroup) => {
+            const reqGroups = Array.from(docGroup.querySelectorAll('.reqGroup'))
+
+            reqGroups.forEach((reqGroup) => {
+                const uploadState = reqGroup.querySelector('.uploadStatus')
+                
+                uploadState.classList.remove('hidden')
+                uploadState.textContent = "Upload progress: 0%"
+            })
+        })
+
+        docGroups.forEach(docGroup => {
+            const reqGroups = Array.from(docGroup.querySelectorAll('.reqGroup'))
+            const docName = docGroup.querySelector('.docName')
+
+            reqGroups.forEach((reqGroup) => {
+                const input = reqGroup.querySelector('input')
+                const label = reqGroup.querySelector('.reqName')
+                const uploadState = reqGroup.querySelector('.uploadStatus')
+                
+                const storageRef = ref(storage, 'docRequirements/' + requestId + "/" + docName.textContent + "/" + label.textContent + "/" + input.files[0].name)
+                const uploadTask = uploadBytesResumable(storageRef, input.files[0])
+
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = parseFloat((snapshot.bytesTransferred/snapshot.totalBytes) * 100).toFixed(2)
+                        const mBytesTransferred = ((snapshot.bytesTransferred / 1000) / 1000);
+                        const mBytesTotal = ((snapshot.totalBytes / 1000) / 1000)
+
+                        uploadState.textContent = "Upload progress: " + progress + "%, " + mBytesTransferred + "Mb / " + mBytesTotal  + "Mb";
+                        console.log("Upload progress: " + progress + "%, " + mBytesTransferred + "Mb / " + mBytesTotal  + "Mb");
+
+                        switch (snapshot.state) {
+                            case 'paused':
+                                console.log('Upload is paused');
+                                break;
+                            case 'running':
+                                console.log('Upload is running');
+                                break;
+                        }
+                    }, 
+                    (error) => {
+                        console.log(error.message)
+                    },
+                    () => {
+                        // Handle successful uploads on complete
+                        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        });
+                    }
+                );
+
+            })
+
+        })
+    }
+
     let ageComputed = 0;
     let birth ;
 
@@ -392,7 +469,7 @@
             </div>
         </div>
         
-        
+        <!-- Upload Requirements -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div class="{uploadModal ? "" : "hidden"} fixed bg-black bg-opacity-50 min-h-screen w-full top-[-0.01%] left-[-0.5px] flex items-center justify-center h-max" on:click|self={() => uploadModal = false}>
             <div class="bg-white h-max w-max p-3 rounded-lg">
@@ -403,21 +480,34 @@
                 </button>
                 <p>Please upload the requirements for the following:</p>
                 {#each documents as doc}
-                    <p>{doc.document}</p>
-                    {#each doc.requirements as req}
-                        <p>{req.requirement}</p>
-                        <div class="relative border-2 bg-slate-400 group flex justify-center items-center h-48  ">
-                            <input 
-                                accept=".jpg, .jpeg .png, .svg, .webp"
-                                title="Click here to choose a file"
-                                type="file" id="{doc.document}File" 
-                                class="relative w-full h-full z-10 pt-24 pl-20 cursor-pointer ">  
-                            <p class="absolute w-full h-full bottom-2 m-auto flex items-center justify-center">Drag here to upload or</p>
-                        </div>
-                    {/each}
+                    <div class="docGroup">
+                        <p class="docName">{doc.document}</p>
+                        {#each doc.requirements as req}
+                            <div class="reqGroup">
+                                <p class="reqName">{req.requirement}</p>
+                                <div class="relative bg-slate-400 group flex justify-center items-center h-48 ">
+                                    <input 
+                                        type="file" 
+                                        accept=".jpg, .jpeg .png, .svg, .webp"
+                                        title="Click here to choose a file"
+                                        id="{doc.document}File" 
+                                        class="relative w-full h-full z-10 pt-24 pl-20 cursor-pointer ">  
+                                        <p class="absolute w-full h-full bottom-2 m-auto flex items-center justify-center">Drag here to upload or</p>     
+                                </div>
+                                <p class="hidden uploadStatus"></p>                            
+                            </div>
+                        {/each}
+                    </div>
                 {/each}
                 <br>
-                <button class="bg-blue-400 text-white p-2 rounded-2xl shadow-md mt-3">Upload All</button>
+                <button 
+                    type="button"
+                    on:click={() => {
+                        console.log('button pressed')
+                        uploadFiles()
+                    }} 
+                    class="bg-blue-400 text-white p-2 rounded-2xl shadow-md mt-3"
+                >Upload All</button>
             </div>
         </div>
 
