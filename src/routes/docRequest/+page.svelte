@@ -2,6 +2,7 @@
     import { db, storage} from '$lib/stores/firebase.js';
     import { collection, doc, onSnapshot, setDoc, Timestamp, query } from "firebase/firestore";
 	import { getStorage, ref, uploadBytesResumable } from 'firebase/storage';
+	import { goto } from '$app/navigation';
 
     let formValidated = false;
     let filesComplete = false;
@@ -12,7 +13,7 @@
 
     let docuList = [];
     let documents = [];
-    const status = "Successful";
+    // const status = "Successful";
     let requestId = "";
 
     let lastName = "";
@@ -54,20 +55,20 @@
         const docGroups = Array.from(formElement.querySelectorAll('.docGroup'));
         
 
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM0987654321";
+        // const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM0987654321";
 
         // ticketId Generator
-        if(requestId.length == 0){
-            for(let index = 0; index < 9; index++){
-                let modulus = index % 3;
-                if(modulus == 0 && index != 0){
-                    requestId += "-"
-                }
-                if(requestId.length <=11){
-                    requestId += letters.charAt(Math.floor(Math.random() * letters.length));
-                }
-            }
-        }
+        // if(requestId.length == 0){
+        //     for(let index = 0; index < 9; index++){
+        //         let modulus = index % 3;
+        //         if(modulus == 0 && index != 0){
+        //             requestId += "-"
+        //         }
+        //         if(requestId.length <=11){
+        //             requestId += letters.charAt(Math.floor(Math.random() * letters.length));
+        //         }
+        //     }
+        // }
 
         docGroups.forEach((docGroup) => {
             const reqGroups = Array.from(docGroup.querySelectorAll('.reqGroup'))
@@ -145,22 +146,21 @@
 
         if(documents.length > 0 || documents != ""){
             try {
-                // const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM0987654321";
+                const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM0987654321";
 
-                // // ticketId Generator
-                // for(let index = 0; index < 9; index++){
-                //     if(requestId.length <= 11) {
-                //         let modulus = index % 3;
-                //         if(modulus == 0 && index != 0){
-                //             requestId += "-"
-                //         }
-                //         requestId += letters.charAt(Math.floor(Math.random() * letters.length));
-                //     }
-                // }
+                // ticketId Generator
+                for(let index = 0; index < 9; index++){
+                    if(requestId.length <= 11) {
+                        let modulus = index % 3;
+                        if(modulus == 0 && index != 0){
+                            requestId += "-"
+                        }
+                        requestId += letters.charAt(Math.floor(Math.random() * letters.length));
+                    }
+                }
                 
                 
-
-
+                
                 const docRef = doc(db, "docRequests", requestId);
 
                 await setDoc(docRef, {
@@ -180,6 +180,7 @@
                 .then(
                     console.log('request successfully added to the database' + requestId)
                 )
+                uploadFiles();
                 submitModal = false;
                 requestSubmitted = true;
                 
@@ -192,6 +193,8 @@
         } else {
             alert("Select at least one document");
         }
+
+        
     }
 
     function formValidation() {
@@ -351,7 +354,7 @@
 
         if(docValidator){
             filesComplete = true
-            uploadFiles();
+            // uploadFiles();
         } else {
             alert("Your requirements are not complete, please upload all the requirements")
             filesComplete = false;
@@ -359,8 +362,17 @@
     
 
     }
-
     
+    let textCopied = false;
+    function copy() {
+        
+        // navigator.clipboard.writeText(requestId)
+        // textCopied = true;
+
+        // setTimeout(() => {
+        //     textCopied = false;
+        // }, 3000)
+    }
     
 
     $: {
@@ -385,6 +397,9 @@
 
 <svelte:head>
     <title>Document Request | B.A.R.S.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" 
+			integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" 
+			crossorigin="anonymous" referrerpolicy="no-referrer" />
 </svelte:head>
 
 <main class=" min-h-screen max-w-screen left-0 mx-2 md:mx-0 mt-3 md:mt-5" >
@@ -406,65 +421,65 @@
                         id="lName" 
                         placeholder="Last Name" 
                         bind:value={lastName}
-                        class="w-full p-2 row-span-1 font-medium text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300 input" 
+                        class="w-full p-2 row-span-1 font-medium text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100 input" 
                         required >
                         <div class=" error  text-red-600 text-sm pl-3"></div>
                     </div>
                     <div class="w-full col-span-6 md:col-span-2 formGroup">
                         <label for="fName" class="hidden col-span-0">First Name </label>
-                        <input type="text" id="fName" placeholder="First Name"  bind:value={firstName} class="w-full p-2 row-span-1 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300 input" required>
+                        <input type="text" id="fName" placeholder="First Name"  bind:value={firstName} class="w-full p-2 row-span-1 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100 input" required>
                         <div class=" error text-red-600 text-sm pl-3"></div>
                     </div>
                     <div class="w-full col-span-6 md:col-span-2 formGroup">
                         <label for="mName" class="hidden">Middle Name </label>
-                        <input type="text" id="mName"placeholder="Middle Name" bind:value={middleName} class="w-full p-2 row-span-1 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300 input" required>
+                        <input type="text" id="mName"placeholder="Middle Name" bind:value={middleName} class="w-full p-2 row-span-1 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100 input" required>
                         <div class=" error text-red-600 text-sm pl-3"></div>
                     </div>
 
                     <!-- Address -->
                     <div class="col-span-6 formGroup">
                         <label for="address" class="hidden">Complete Address</label>
-                        <input type="text" id="address"placeholder="Complete Address" bind:value={address} class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300" required>
+                        <input type="text" id="address"placeholder="Complete Address" bind:value={address} class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100" required>
                         <div class=" error text-red-600 text-sm pl-3"></div>
                     </div>
 
                     <!-- Contact No. -->
                     <div class="col-span-6 formGroup">
                         <label for="contact" class="hidden">Phone Number</label>
-                        <input type="tel" id="contact" placeholder="Phone Number" bind:value={contact} class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300" required phone>
+                        <input type="tel" id="contact" placeholder="Phone Number" bind:value={contact} class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100" required phone>
                         <div class=" error text-red-600 text-sm pl-3"></div>
                     </div>
 
                     <!-- BirthDate -->
                     <div class="col-span-3 formGroup">
                         <label for="birthDate" class="hidden">Birthdate</label>
-                        <input type="text" id="birthDate" placeholder="Birthdate" class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300 date:text-none" required onfocus="(this.type='date')" customdate bind:value={birth}>
+                        <input type="text" id="birthDate" placeholder="Birthdate" class="w-full p-2 text-black bg-orange-300 rounded-xl placeholder:text-black outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100 date:text-none" required onfocus="(this.type='date')" customdate bind:value={birth}>
                         <div class=" error text-red-600 text-sm pl-3"></div>
                     </div>
 
                     <!-- Age -->
                     <div class="col-span-1 formGroup">
                         <label for="age" class="hidden">Age</label>
-                        <input type="number" id="age" placeholder="Age" class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-0 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300" required custommaxvalue="125" customminvalue="0" bind:value={ageComputed}>
+                        <input type="number" id="age" placeholder="Age" class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-0 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100" required custommaxvalue="125" customminvalue="0" bind:value={ageComputed}>
                         <div class=" error col-span-3 text-red-600 text-sm pl-3"></div>
                     </div>
                     <p class="col-span-2 p-2 pl-1">years old</p>
                     <!-- Email Address -->
                     <div class="col-span-6 formGroup">
                         <label for="email" class="hidden">Email Address</label>
-                        <input type="text" id="email" placeholder="Email Address" bind:value={emailAddress} class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300" required email>
+                        <input type="text" id="email" placeholder="Email Address" bind:value={emailAddress} class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100" required email>
                         <div class=" error text-red-600 text-sm pl-3"></div>
                     </div>
                     <!-- Purpose of the Document -->
                     <div class="col-span-6 formGroup">
                         <label for="purpose" class="hidden">Purpose of the Document</label>
-                        <input type="text" id="purpose" placeholder="Purpose of the Document" bind:value={purpose} class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-300" required>
+                        <input type="text" id="purpose" placeholder="Purpose of the Document" bind:value={purpose} class="w-full p-2 text-black bg-orange-300 rounded-3xl placeholder:text-black placeholder:pl-1 outline-orange-300 focus:outline-offset-4 focus:outline-orange-300 focus:outline-[3px] transition-all duration-100" required>
                         <div class=" error text-red-600 text-sm pl-3"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Document Selection and Requirements -->
+            <!-- Document Selection and Requirements --> 
             <div class="w-full md:col-span-2">
                 <div class="w-full flex justify-center">
                     <p class="w-fit text-center mb-4 p-2 text-black bg-orange-300 rounded-3xl">List of Documents</p>
@@ -500,28 +515,30 @@
             <!-- Upload Requirements -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div class="{uploadModal ? "" : "hidden"} fixed bg-black bg-opacity-50 min-h-screen w-full top-[-0.01%] left-[-0.5px] flex items-center justify-center transition-all duration-300 h-max" on:click|self={() => uploadModal = false}>
-                <div class="bg-white h-max w-max p-3 rounded-lg">
-                    <button type="button" on:click={() => uploadModal = false} class="bg-red-400 py-2 px-3 rounded-3xl mb-3">
-                        <!-- <div class="w-5 h-1 bg-white rotate-45"></div>
-                        <div class="w-5 h-1 bg-white ] translate-y-[-4px] rotate-[135deg]"></div> -->
-                        <p class="text-white text-sm">X</p>
-                    </button>
+                <div class="bg-white max-h-[80%] w-[85%] md:h-max md:w-max p-3 rounded-lg">
+                    <div class="w-full h-max flex justify-end">
+                        <button type="button" on:click={() => uploadModal = false} class="mb-3">
+                            <!-- <div class="w-5 h-1 bg-white rotate-45"></div>
+                            <div class="w-5 h-1 bg-white ] translate-y-[-4px] rotate-[135deg]"></div> -->
+                            <i class="fa-solid fa-circle-xmark text-[30px] text-red-600"></i>
+                        </button>
+                    </div>
                     <p>Please upload the requirements for the following:</p>
-                    <div class="overflow-auto max-h-[500px] w-[500px] rounded-xl p-2 ">
+                    <div class="overflow-auto max-h-[400px] md:max-w-[500px] rounded-xl p-2 ">
                         {#each documents as doc}
-                            <div class="docGroup">
+                            <div class="docGroup w-max pb-2 border-b-2 border-dashed border-orange-300">
                                 <p class="docName">{doc.document}</p>
                                 {#each doc.requirements as req}
-                                    <div class="reqGroup">
+                                    <div class="reqGroup mb-2">
                                         <p class="reqName">{req.requirement}</p>
-                                        <div class="relative bg-slate-400 group flex justify-center items-center h-48 ">
+                                        <div class="relative w-[260px] h-[100px] md:w-[460px] bg-black bg-opacity-30 group rounded-xl flex justify-center items-center md:h-48 ">
                                             <input 
                                                 type="file" 
                                                 accept=".jpg, .jpeg .png, .svg, .webp"
                                                 title="Click here to choose a file"
                                                 id="{doc.document}File" 
-                                                class="relative w-full h-full z-10 pt-24 pl-[140px] text-white file:bg-orange-400 file:p-2 file:text-white file:border-none file:rounded-xl file:shadow-xl cursor-pointer ">  
-                                                <p class="absolute w-full h-full mb-2 text-white bottom-2 m-auto flex items-center justify-center">Drag here to upload or</p>     
+                                                class="relative md:w-full h-full z-10 pt-[27.5px] md:pt-20 pl-[20px] md:pl-[140px] text-white file:bg-orange-400 file:p-2 file:text-white file:border-none file:rounded-xl file:shadow-xl cursor-pointer ">  
+                                                <section class="absolute w-full h-full mb-2 text-white bottom-2 m-auto flex items-center justify-center"></section>     
                                         </div>
                                         <p class="hidden uploadStatus"></p>                            
                                     </div>
@@ -538,7 +555,7 @@
                                 uploadModal = false; 
                                 submitModal = true;
                             }}  
-                            class="bg-blue-400 text-white p-2 rounded-2xl shadow-md mt-3"
+                            class="bg-blue-400 text-white p-2 rounded-2xl shadow-md mt-2"
                         >Next</button>
                     {:else}
                         <button 
@@ -547,15 +564,15 @@
                                 console.log('button pressed')
                                 filesChecker();
                             }} 
-                            class="bg-blue-400 text-white p-2 rounded-2xl shadow-md mt-3"
+                            class="bg-blue-400 text-white p-2 rounded-2xl shadow-md mt-2"
                             
-                        >Upload All</button>
+                        >Check Files</button>
                     {/if}
                 </div>
             </div>
 
             <!-- Submit Modal -->
-            <div class="{submitModal ? "" : "hidden"} fixed bg-black bg-opacity-50 min-h-screen w-full top-[-0.01%] left-[-0.5px] flex items-center justify-center transition-all duration-300 h-max">
+            <div class="{submitModal ? "" : "hidden "} fixed bg-black bg-opacity-50 min-h-screen w-full top-[-0.01%] left-[-0.5px] flex items-center justify-center transition-all duration-300 h-max">
                 <div class="bg-white h-max w-max p-3 rounded-lg">
                     <p class="mb-3">Your Inputs</p>
                     <div class="flex items-center justify-start gap-2 mb-2">
@@ -628,12 +645,29 @@
     
 
     {:else}
-        <div class=" bg-white p-3 border-2 border-white flex items-center gap-3 shadow-lg rounded-md">
+        <div id="afterSubmit" class="md:h-[300px] bg-white p-3 border-2 border-white flex flex-col items-center justify-center gap-3 shadow-lg rounded-md">
             <p>Your request have been submitted, you will be notified if your document is ready. Thank you!</p>
-            <p>Here is the generated ticket code for this request, write it down or save it in any way</p>
-            <p>{requestId}</p>
-            <button type="button" on:click={() => window.location.reload()}>Back to Homepage</button>
-            <button type="button" on:click={() => window.location.reload()}>Submit Another Request</button>
+            <p>Below is your request id. Write it down or press the button to copy it.</p>
+            <div class="flex items-center w-[150px]">
+                <p id="requestID" class="p-3 mr-2 bg-orange-400 text-white rounded-xl hover:underline">{requestId}</p>
+                <button 
+                    title="Press to copy your request ID" 
+                    class="p-2 mr-2 flex items-center gap-2 bg-orange-400 text-white rounded-xl shadow-lg hover:scale-[1.1] active:scale-[.9] transition-transform duration-100" 
+                    on:click={() => {
+                        navigator.clipboard.writeText(requestId);
+                        textCopied = true;
+                        setTimeout(() => {textCopied = false}, 2000)
+                        }}>
+                    <p class="text-[10px]">{textCopied ? "Copied": "Copy"}</p>
+                    <i class="fa-regular fa-copy"></i>
+                </button>
+                <!-- <p class="{textCopied ? "" : "hidden"} copy-message p-2 text-[8px] relative text-white bg-slate-800 rounded-xl">Copied</p> -->
+            </div>
+            <!-- <div class="flex items-center gap-2"> -->
+                <button type="button" class="p-2" on:click={() => window.location.reload()}>Finish</button>
+                <!-- <button type="button" on:click={homepage}>Back to Homepage</button> -->
+
+            <!-- </div> -->
         </div>
     {/if}
     

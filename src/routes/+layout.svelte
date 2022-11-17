@@ -17,7 +17,7 @@
         <div class=" m-2">
             <img src="../../" alt="brgy logo" class="h-16 w-16 md:h-20 md:w-20 border-gray-500 border-2 rounded-[50%]">
         </div>
-        <div class="w-full flex flex-col ml-2 mb-0 p-0">
+        <div class="w-full flex flex-col ml-2 mb-0 p-0 ">
             <div class="w-auto py-5 flex justify-between md:justify-center">
                 <span class="md:mb-5 text-md md:text-2xl md:text-center font-[Poppins] align-middle">Barangay Appointment and Request System</span>
  
@@ -38,8 +38,8 @@
  
                 </button>
             </div>
-            <button on:click={menu}>
-                <ul id="navlist" class="mt-8 md:mb-0 md:mt-0 md:flex md:items-center justify-between md:static absolute left-0 top-12 w-full text-center py-4 md:py-0 md:opacity-100 transition-all ease-in duration-300 {openMenu ? '' : 'hidden'}">
+            <button class="" on:click={menu}>
+                <ul id="navlist" class="mt-8 md:mb-0 md:mt-0 md:flex md:items-center justify-between md:static bg-white absolute left-0 top-12 w-full text-center py-4 md:py-0 md:opacity-100 transition-all ease-in duration-300 {openMenu ? '' : 'hidden'}">
                     <li class="mx-4 my-6 md:my-0">
                         <a href="/" class="text-md md:text-xl md:px-3 md:pt-1 md:top-[2px] md:bg-orange-300 md:border-b-2 md:border-orange-300 md:text-gray-800 md:rounded-t-md md:hover:text-white hover:text-gray-500 hover:underline md:hover:no-underline duration-300">Homepage</a>
                     </li>
