@@ -61,4 +61,8 @@
         <slot></slot>
     
     </main>
- </div>
+
+</div>
+<footer class="bg-black bg-opacity-80 h-[200px] text-white">
+    Footer
+</footer>
