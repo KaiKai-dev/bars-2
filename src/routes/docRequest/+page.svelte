@@ -34,7 +34,7 @@
 
         querySnapshot.forEach((doc) => {
             let reqs = [];
-            document["document"] = doc.id;
+            // document["document"] = doc.id;
             for(let index = 0; index < doc.data().requirements.length; index++){
                 reqs.push({
                     requirement: doc.data().requirements[index]
@@ -53,22 +53,6 @@
     async function uploadFiles() {
         const formElement = document.getElementById('form');
         const docGroups = Array.from(formElement.querySelectorAll('.docGroup'));
-        
-
-        // const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM0987654321";
-
-        // ticketId Generator
-        // if(requestId.length == 0){
-        //     for(let index = 0; index < 9; index++){
-        //         let modulus = index % 3;
-        //         if(modulus == 0 && index != 0){
-        //             requestId += "-"
-        //         }
-        //         if(requestId.length <=11){
-        //             requestId += letters.charAt(Math.floor(Math.random() * letters.length));
-        //         }
-        //     }
-        // }
 
         docGroups.forEach((docGroup) => {
             const reqGroups = Array.from(docGroup.querySelectorAll('.reqGroup'))
@@ -132,23 +116,14 @@
     }
 
     async function submitHandler() {
-        // const lastName = document.getElementById('lName').value;
-        // const firstName = document.getElementById('fName').value;
-        // const middleName = document.getElementById('mName').value;
-        // const address = document.getElementById('address').value;
-        // const contact = document.getElementById('contact').value;
-        // const birthDate = document.getElementById('birthDate').value;
-        // const age = document.getElementById('age').value;
-        // const email = document.getElementById('email').value;
-        // const purpose = document.getElementById('purpose').value;
-
+        
         const collectionRef = collection(db, 'docRequests');
 
         if(documents.length > 0 || documents != ""){
             try {
-                const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM0987654321";
+                const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890QWERTYUIOPLKJHGFDSAZXCVBNM9876543210";
 
-                // ticketId Generator
+                // requesttId Generator
                 for(let index = 0; index < 9; index++){
                     if(requestId.length <= 11) {
                         let modulus = index % 3;
@@ -243,11 +218,13 @@
 
                     if(parseInt((yearAge - 1), 10) != input.value){
                         return "The birthdate and age you entered did not matched"
-                    } else if(parseInt((yearAge - 1), 10) > 125){
-                        return label.textContent + " is beyond the max age (125)"
-                    } else if(parseInt((yearAge - 1), 10) < 0){
-                        return label.textContent + " is below the minimum age (0)"
-                    }
+                    } else {
+                        if(parseInt((yearAge - 1), 10) > 125){
+                            return label.textContent + " is beyond the max age (125)"
+                        } else if(parseInt((yearAge - 1), 10) < 0){
+                            return label.textContent + " is below the minimum age (0)"
+                        }
+                    } 
                 }
             },
             {
@@ -493,7 +470,7 @@
                     {#each docuList as docu}
                         <div>
                             <div class="flex justify-between">
-                                <input type="checkbox" value={docu} bind:group={documents} class="" checked> <p class="w-full p-2 pl-3 ml-2 bg-orange-300 text-black rounded-3xl">{docu.document}</p> <br>
+                                <input type="checkbox" value={docu} bind:group={documents} class=""> <p class="w-full p-2 pl-3 ml-2 bg-orange-300 text-black rounded-3xl">{docu.document}</p> <br>
                             </div>
                             {#each docu.requirements as req}
                                 <p class="ml-10 my-3">{req.requirement}</p>
