@@ -1,5 +1,5 @@
 <script>
-	import Annnouncement from '../lib/components/annnouncement.svelte';
+	import Annnouncement from '$lib/components/annnouncement.svelte';
     import {db} from "$lib/stores/firebase.js"
     import { collection, query, onSnapshot, Timestamp} from "firebase/firestore";
 
