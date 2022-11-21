@@ -8,7 +8,7 @@ function menu(){
     openMenu = !openMenu;
 }
 </script>
-<h1>test 2</h1>
+
 
 <div class="md:p-7 bg-gradient-to-t from-orange-200 to-orange-300 min-h-screen">
     <nav class="md:px-5 md:pt-5 bg-white shadow-lg flex md:fit md:pb-0 md:justify-between md:rounded-md">
@@ -17,7 +17,7 @@ function menu(){
         </div>
         <div class="w-full flex flex-col ml-2 mb-0 p-0 ">
             <div class="w-auto py-5 flex justify-between md:justify-center">
-                <span class="md:mb-5 text-md md:text-2xl md:text-center font-[Poppins] align-middle">Barangay Appointment and Request System</span>
+                <span class="md:mb-5 text-md md:text-2xl md:text-center align-middle">Barangay Appointment and Request System</span>
  
                 <button class="md:hidden block mr-2 align-middle" on:click={menu}>
                     {#if !openMenu} 
